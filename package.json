@@ -1,0 +1,22 @@
+{
+  "name": "lookin-crm",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter @lookin/api --filter @lookin/web dev",
+    "dev:infra": "docker compose up -d postgres redis",
+    "dev:down": "docker compose down",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:migrate": "pnpm --filter @lookin/api db:migrate",
+    "db:seed": "pnpm --filter @lookin/api db:seed"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  }
+}
