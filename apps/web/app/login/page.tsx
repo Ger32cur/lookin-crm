@@ -1,10 +1,60 @@
 'use client';
 
+<<<<<<< ours
 import { motion } from 'framer-motion';
 import { Building2, Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
+=======
+import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Building2, Lock, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { setAuthToken } from '@/lib/auth';
+
+type LoginResponse = {
+  accessToken: string;
+};
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('admin@demo.local');
+  const [password, setPassword] = useState('Admin12345!');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Credenciales inválidas');
+      }
+
+      const data: LoginResponse = await response.json();
+      setAuthToken(data.accessToken);
+      router.push('/dashboard');
+      router.refresh();
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'No se pudo iniciar sesión');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+>>>>>>> theirs
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6">
       <motion.section
@@ -23,13 +73,22 @@ export default function LoginPage() {
           </div>
         </div>
 
+<<<<<<< ours
         <form className="space-y-4">
+=======
+        <form className="space-y-4" onSubmit={handleSubmit}>
+>>>>>>> theirs
           <label className="block">
             <span className="mb-1 flex items-center gap-2 text-sm text-slate-300">
               <Mail className="h-4 w-4" /> Email
             </span>
             <input
               type="email"
+<<<<<<< ours
+=======
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+>>>>>>> theirs
               placeholder="agent@your-org.com"
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none ring-indigo-400 transition focus:ring"
             />
@@ -41,13 +100,25 @@ export default function LoginPage() {
             </span>
             <input
               type="password"
+<<<<<<< ours
+=======
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+>>>>>>> theirs
               placeholder="••••••••"
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none ring-indigo-400 transition focus:ring"
             />
           </label>
 
+<<<<<<< ours
           <Button className="w-full" size="lg" type="button">
             Sign in (placeholder)
+=======
+          {error ? <p className="text-sm text-rose-400">{error}</p> : null}
+
+          <Button className="w-full" size="lg" type="submit" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in'}
+>>>>>>> theirs
           </Button>
         </form>
       </motion.section>
