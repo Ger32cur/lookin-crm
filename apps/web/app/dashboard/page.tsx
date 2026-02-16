@@ -4,13 +4,14 @@ import { redirect } from 'next/navigation';
 import { AUTH_TOKEN_COOKIE } from '@/lib/auth';
 
 type MeResponse = {
+  id: string;
   email: string;
   role: string;
   organizationId: string;
 };
 
 async function getMe(token: string) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
     method: 'GET',
     cache: 'no-store',
     headers: {
