@@ -9,7 +9,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "test": "pnpm run test:e2e",
-    "test:e2e": "DATABASE_URL=file:./prisma/test.db JWT_SECRET=test-secret JWT_EXPIRATION=1h prisma db push --schema prisma/schema.test.prisma --force-reset && DATABASE_URL=file:./prisma/test.db JWT_SECRET=test-secret JWT_EXPIRATION=1h jest --config ./test/jest-e2e.json --runInBand",
+    "test:e2e": "DATABASE_URL=file:./test.db JWT_SECRET=test-secret JWT_EXPIRATION=1h prisma db push --schema prisma/schema.test.prisma --force-reset && DATABASE_URL=file:./test.db JWT_SECRET=test-secret JWT_EXPIRATION=1h jest --config ./test/jest-e2e.json --runInBand",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed"
   },
