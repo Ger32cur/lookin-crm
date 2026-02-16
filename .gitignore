@@ -9,3 +9,5 @@ coverage
 .DS_Store
 
 *.tsbuildinfo
+apps/api/prisma/test.db*
+apps/api/prisma/generated/test-client
