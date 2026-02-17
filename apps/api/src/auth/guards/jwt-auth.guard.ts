@@ -4,6 +4,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { JwtPayload } from '../types/jwt-payload.type';
 
+type RequestWithOrg = {
+  organizationId?: string;
+};
+
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private readonly reflector: Reflector) {
@@ -23,24 +27,25 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = JwtPayload>(
+  handleRequest(
     err: unknown,
-    user: TUser,
+    user: JwtPayload | undefined,
     _info: unknown,
     context: ExecutionContext,
-    _status?: unknown,
-  ): TUser {
+  ): JwtPayload {
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
 
-    const request = context.switchToHttp().getRequest<{
-      organizationId?: string;
-    }>();
+    const request = context.switchToHttp().getRequest<RequestWithOrg>();
 
-    request.organizationId = (user as unknown as { organizationId: string }).organizationId;
-
-
+    // Guardamos organizationId en request para que el resto de la app lo use fácil.
+    if (user.organizationId) {
+      request.organizationId = user.organizationId;
+    } else {
+      // Si por algún motivo el token no trae orgId, es mejor cortar acá (multi-tenant estricto).
+      throw new UnauthorizedException('Missing organizationId in JWT payload');
+    }
 
     return user;
   }
