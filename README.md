@@ -4,104 +4,87 @@ Monorepo base para CRM SaaS multi-tenant.
 
 ## Stack
 
-- **Monorepo:** pnpm workspaces
-- **API:** NestJS + Prisma + PostgreSQL + Redis (BullMQ-ready)
-- **Web:** Next.js App Router + Tailwind + shadcn/ui + Framer Motion
-- **Infra local:** docker-compose (postgres + redis)
+- Monorepo: pnpm workspaces
+- API: NestJS + Prisma + PostgreSQL + Redis
+- Web: Next.js App Router + Tailwind + shadcn/ui + Framer Motion
+- Infra local: docker-compose (postgres + redis)
 
 ## Estructura
 
-```
+```text
 apps/
   api/   # NestJS API
   web/   # Next.js frontend
 ```
 
-## Setup
+## Setup local
 
 ```bash
 cp .env.example .env
 pnpm install
 pnpm dev:infra
-<<<<<<< ours
-=======
 pnpm db:migrate
 pnpm db:seed
->>>>>>> theirs
+pnpm dev
 ```
 
-## Comandos
-
-- Instalar deps:
-  ```bash
-  pnpm install
-  ```
-- Desarrollo (api + web):
-  ```bash
-  pnpm dev
-  ```
-- Levantar infra local:
-  ```bash
-  pnpm dev:infra
-  ```
-- Bajar infra local:
-  ```bash
-  pnpm dev:down
-  ```
-- Migraciones Prisma:
-  ```bash
-  pnpm db:migrate
-  ```
-- Seed base:
-  ```bash
-  pnpm db:seed
-  ```
-
-<<<<<<< ours
-=======
 ## Variables de entorno
 
-- `JWT_SECRET`: firma de access tokens JWT.
+- `JWT_SECRET`: secreto de firma para JWT.
+- `JWT_EXPIRATION`: duración del access token (ejemplo: `1h`).
 - `FRONTEND_ORIGIN`: origen permitido por CORS para la app web.
 - `NEXT_PUBLIC_API_URL`: URL base del backend usada por Next.js.
 
->>>>>>> theirs
-## Multi-tenant (base)
-
-Se define desde el día 1:
-- `Organization`
-- `User` con RBAC mínimo (`admin`, `agent`)
-- `EventLog` para auditoría inicial
-
-Todas las entidades de negocio futuras deben incluir `organizationId`.
-
-<<<<<<< ours
-## Endpoints iniciales API
-
-- `GET /health`
-- `POST /auth/login` (placeholder)
-- `POST /auth/logout` (placeholder)
-=======
 ## Endpoints API
 
-- `GET /health`
-- `POST /auth/login`
-- `GET /auth/me` (requiere `Authorization: Bearer <token>`)
+- `GET /health` (público)
+- `POST /api/auth/login` (público)
+- `GET /api/auth/me` (requiere `Authorization: Bearer <token>`)
+- `POST /api/contacts` (requiere JWT)
+- `GET /api/contacts` (requiere JWT, soporta `q`, `limit`, `offset`)
+- `GET /api/contacts/:id` (requiere JWT)
+- `PATCH /api/contacts/:id` (requiere JWT)
+- `DELETE /api/contacts/:id` (requiere JWT)
 
-## Flujo de autenticación (local)
+Todos los endpoints bajo `/api/*` están protegidos por JWT por defecto; los públicos se marcan explícitamente.
+
+## Flujo de autenticación local
 
 1. Ejecutar migraciones y seed:
    ```bash
    pnpm db:migrate
    pnpm db:seed
    ```
-2. Levantar app:
-   ```bash
-   pnpm dev
-   ```
-3. Abrir `http://localhost:3000/login`.
-4. Credenciales demo:
+2. Abrir `http://localhost:3000/login`.
+3. Iniciar sesión con:
    - Email: `admin@demo.local`
    - Password: `Admin12345!`
-5. Si login es correcto redirige a `/dashboard`, que valida token llamando a `GET /auth/me`.
->>>>>>> theirs
+4. El login consume `POST /api/auth/login`, guarda token y redirige a `/dashboard`.
+5. `/dashboard` consume `GET /api/auth/me` para mostrar email, rol y `organizationId`.
+
+## Ejemplos curl (Contacts)
+
+```bash
+# login
+TOKEN=$(curl -s -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@demo.local","password":"Admin12345!"}' | jq -r '.accessToken')
+
+# create contact
+curl -X POST http://localhost:3001/api/contacts \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Ana","lastName":"Perez","email":"ana@demo.local","phone":"+54 11 5555 0000","status":"lead"}'
+
+# list contacts (search + pagination)
+curl "http://localhost:3001/api/contacts?q=ana&limit=20&offset=0" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Comandos útiles
+
+- `pnpm dev`
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm --filter @lookin/api test:e2e`

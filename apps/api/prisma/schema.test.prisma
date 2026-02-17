@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/test-client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  users     User[]
+  contacts  Contact[]
+  pipelines Pipeline[]
+  opportunities Opportunity[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  passwordHash   String
+  firstName      String?
+  lastName       String?
+  role           String       @default("agent")
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+}
+
+model Contact {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  firstName      String?
+  lastName       String?
+  email          String?
+  phone          String?
+  status         String?
+  opportunities  Opportunity[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@unique([organizationId, email])
+}
+
+model Pipeline {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  stages         Stage[]
+  opportunities  Opportunity[]
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@unique([organizationId, name])
+}
+
+model Stage {
+  id             String        @id @default(cuid())
+  pipelineId     String
+  pipeline       Pipeline      @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  name           String
+  order          Int
+  opportunities  Opportunity[]
+  createdAt      DateTime      @default(now())
+
+  @@index([pipelineId])
+  @@unique([pipelineId, order])
+  @@unique([pipelineId, name])
+}
+
+model Opportunity {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contactId      String
+  contact        Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  pipelineId     String
+  pipeline       Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  stageId        String
+  stage          Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  title          String
+  value          Int?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId, pipelineId])
+  @@index([organizationId, stageId])
+  @@index([organizationId, contactId])
+}

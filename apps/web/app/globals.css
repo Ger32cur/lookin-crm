@@ -2,6 +2,98 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Coolvetica';
+  src: url('/fonts/coolvetica%20rg.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Coolvetica';
+  src: url('/fonts/coolvetica%20condensed%20rg.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Coolvetica';
+  src: url('/fonts/coolvetica%20compressed%20rg.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans Lookin';
+  src: url('/fonts/NotoSansAdlamUnjoined-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans Lookin';
+  src: url('/fonts/NotoSansAdlamUnjoined-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans Lookin';
+  src: url('/fonts/NotoSansAdlamUnjoined-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans Lookin';
+  src: url('/fonts/NotoSansAdlamUnjoined-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --brand-primary: #111111;
+  --brand-accent: #00e5a0;
+  --brand-muted: #f4f4f4;
+  --brand-text: #1a1a1a;
+  --font-heading: 'Coolvetica', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-body: 'Noto Sans Lookin', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html,
 body {
-  @apply bg-slate-950 text-slate-50 antialiased;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--brand-muted);
+  color: var(--brand-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  letter-spacing: 0.01em;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }

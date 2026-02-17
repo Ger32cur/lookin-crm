@@ -14,46 +14,63 @@ export class AuthService {
   ) {}
 
   async login(data: LoginDto) {
-    const user = await this.prisma.user.findFirst({
+    const users = await this.prisma.user.findMany({
       where: {
-        email: data.email.toLowerCase(),
+        email: data.email.trim().toLowerCase(),
         isActive: true,
       },
     });
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+    let authenticatedUser: (typeof users)[number] | null = null;
+
+    for (const candidate of users) {
+      const isValidPassword = await compare(data.password, candidate.passwordHash);
+      if (isValidPassword) {
+        authenticatedUser = candidate;
+        break;
+      }
     }
 
-    const isValidPassword = await compare(data.password, user.passwordHash);
-    if (!isValidPassword) {
+    if (!authenticatedUser) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role as Role,
-      organizationId: user.organizationId,
+      userId: authenticatedUser.id,
+      organizationId: authenticatedUser.organizationId,
+      role: authenticatedUser.role as Role,
     };
 
     return {
       accessToken: await this.jwtService.signAsync(payload),
       user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        organizationId: user.organizationId,
+        id: authenticatedUser.id,
+        email: authenticatedUser.email,
+        role: authenticatedUser.role,
+        organizationId: authenticatedUser.organizationId,
       },
     };
   }
 
-  me(user: JwtPayload) {
-    return {
-      id: user.sub,
-      email: user.email,
-      role: user.role,
-      organizationId: user.organizationId,
-    };
+  async me(userId: string, organizationId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        organizationId,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        organizationId: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    return user;
   }
 }

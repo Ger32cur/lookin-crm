@@ -10,7 +10,7 @@ export default function HomePage() {
           API en NestJS + Prisma y frontend Next.js App Router con Tailwind, shadcn/ui y animaciones.
         </p>
         <Link className="text-indigo-300 underline-offset-4 hover:underline" href="/login">
-          Ir al login placeholder
+          Ir al login
         </Link>
       </div>
     </main>

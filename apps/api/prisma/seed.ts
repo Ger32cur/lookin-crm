@@ -1,11 +1,9 @@
-<<<<<<< ours
-import { PrismaClient, Role } from '@prisma/client';
-=======
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcryptjs';
->>>>>>> theirs
 
 const prisma = new PrismaClient();
+const DEFAULT_PIPELINE_NAME = 'Default Sales Pipeline';
+const DEFAULT_STAGES = ['Lead', 'Qualified', 'Proposal', 'Won', 'Lost'];
 
 async function main() {
   const organization = await prisma.organization.upsert({
@@ -17,11 +15,8 @@ async function main() {
     },
   });
 
-<<<<<<< ours
-=======
   const passwordHash = await hash('Admin12345!', 10);
 
->>>>>>> theirs
   await prisma.user.upsert({
     where: {
       organizationId_email: {
@@ -29,14 +24,6 @@ async function main() {
         email: 'admin@demo.local',
       },
     },
-<<<<<<< ours
-    update: {},
-    create: {
-      organizationId: organization.id,
-      email: 'admin@demo.local',
-      passwordHash: 'change-me',
-      role: Role.admin,
-=======
     update: {
       passwordHash,
       role: 'admin',
@@ -47,7 +34,6 @@ async function main() {
       email: 'admin@demo.local',
       passwordHash,
       role: 'admin',
->>>>>>> theirs
       firstName: 'Demo',
       lastName: 'Admin',
     },
@@ -63,6 +49,49 @@ async function main() {
       metadata: { seed: true },
     },
   });
+
+  const organizations = await prisma.organization.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  for (const organizationItem of organizations) {
+    const pipeline = await prisma.pipeline.upsert({
+      where: {
+        organizationId_name: {
+          organizationId: organizationItem.id,
+          name: DEFAULT_PIPELINE_NAME,
+        },
+      },
+      update: {},
+      create: {
+        organizationId: organizationItem.id,
+        name: DEFAULT_PIPELINE_NAME,
+      },
+    });
+
+    await Promise.all(
+      DEFAULT_STAGES.map((stageName, index) =>
+        prisma.stage.upsert({
+          where: {
+            pipelineId_order: {
+              pipelineId: pipeline.id,
+              order: index + 1,
+            },
+          },
+          update: {
+            name: stageName,
+          },
+          create: {
+            pipelineId: pipeline.id,
+            name: stageName,
+            order: index + 1,
+          },
+        }),
+      ),
+    );
+  }
 }
 
 main()
