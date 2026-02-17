@@ -25,20 +25,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  // Mantener firma compatible con IAuthGuard / Passport
-  handleRequest<TUser = any>(
+  handleRequest<TUser = JwtPayload>(
     err: unknown,
     user: TUser,
     _info: unknown,
     context: ExecutionContext,
-    _status?: unknown,
   ): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
 
     const payload = user as unknown as JwtPayload;
-
     if (!payload.organizationId) {
       throw new UnauthorizedException('Missing organizationId in JWT payload');
     }
