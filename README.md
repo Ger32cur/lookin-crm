@@ -40,6 +40,11 @@ pnpm dev
 - `GET /health` (público)
 - `POST /api/auth/login` (público)
 - `GET /api/auth/me` (requiere `Authorization: Bearer <token>`)
+- `POST /api/contacts` (requiere JWT)
+- `GET /api/contacts` (requiere JWT, soporta `q`, `limit`, `offset`)
+- `GET /api/contacts/:id` (requiere JWT)
+- `PATCH /api/contacts/:id` (requiere JWT)
+- `DELETE /api/contacts/:id` (requiere JWT)
 
 Todos los endpoints bajo `/api/*` están protegidos por JWT por defecto; los públicos se marcan explícitamente.
 
@@ -57,9 +62,29 @@ Todos los endpoints bajo `/api/*` están protegidos por JWT por defecto; los pú
 4. El login consume `POST /api/auth/login`, guarda token y redirige a `/dashboard`.
 5. `/dashboard` consume `GET /api/auth/me` para mostrar email, rol y `organizationId`.
 
+## Ejemplos curl (Contacts)
+
+```bash
+# login
+TOKEN=$(curl -s -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@demo.local","password":"Admin12345!"}' | jq -r '.accessToken')
+
+# create contact
+curl -X POST http://localhost:3001/api/contacts \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Ana","lastName":"Perez","email":"ana@demo.local","phone":"+54 11 5555 0000","status":"lead"}'
+
+# list contacts (search + pagination)
+curl "http://localhost:3001/api/contacts?q=ana&limit=20&offset=0" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
 ## Comandos útiles
 
 - `pnpm dev`
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
+- `pnpm --filter @lookin/api test:e2e`

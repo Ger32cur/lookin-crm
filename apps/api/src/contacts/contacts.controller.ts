@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import { OrganizationId } from '../auth/decorators/organization-id.decorator';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto } from './dto/create-contact.dto';
+import { ListContactsDto } from './dto/list-contacts.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 
 @Controller('contacts')
@@ -14,8 +15,8 @@ export class ContactsController {
   }
 
   @Get()
-  findAll(@OrganizationId() organizationId: string) {
-    return this.contactsService.findAll(organizationId);
+  findAll(@OrganizationId() organizationId: string, @Query() query: ListContactsDto) {
+    return this.contactsService.findAll(organizationId, query);
   }
 
   @Get(':id')

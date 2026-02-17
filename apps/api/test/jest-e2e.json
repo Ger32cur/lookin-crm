@@ -3,8 +3,9 @@
   "rootDir": "..",
   "testEnvironment": "node",
   "testRegex": "test/.*\\.e2e-spec\\.ts$",
+  "transformIgnorePatterns": ["<rootDir>/prisma/generated/test-client/"],
   "transform": {
-    "^.+\\.(t|j)s$": [
+    "^.+\\.ts$": [
       "ts-jest",
       {
         "tsconfig": "<rootDir>/tsconfig.spec.json"

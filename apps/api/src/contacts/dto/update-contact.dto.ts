@@ -1,10 +1,13 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class UpdateContactDto {
   @IsOptional()
   @IsString()
-  @MinLength(1)
-  name?: string;
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
 
   @IsOptional()
   @IsEmail()
@@ -16,5 +19,5 @@ export class UpdateContactDto {
 
   @IsOptional()
   @IsString()
-  notes?: string;
+  status?: string;
 }
