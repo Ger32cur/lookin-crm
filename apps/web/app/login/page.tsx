@@ -1,11 +1,12 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Building2, Lock, Mail } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Lock, Mail } from 'lucide-react';
 import { setAuthToken } from '@/lib/auth';
+import { getApiBaseUrl } from '@/lib/api-base-url';
 
 type LoginResponse = {
   accessToken: string;
@@ -21,16 +22,16 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('admin@demo.local');
   const [password, setPassword] = useState('Admin12345!');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
     setLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,7 +40,7 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Credenciales inválidas');
+        throw new Error('Invalid credentials');
       }
 
       const data: LoginResponse = await response.json();
@@ -47,62 +48,73 @@ export default function LoginPage() {
       router.push('/dashboard');
       router.refresh();
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'No se pudo iniciar sesión');
+      setError(submitError instanceof Error ? submitError.message : 'Unable to sign in');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-white via-[var(--brand-muted)] to-slate-100 p-6">
       <motion.section
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl shadow-indigo-950/40"
+        initial={{ opacity: 0, y: 24, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_22px_70px_-24px_rgba(15,23,42,0.35)]"
       >
-        <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-xl bg-indigo-500/20 p-2 text-indigo-300">
-            <Building2 className="h-5 w-5" />
+        <div className="mb-8 space-y-4 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--brand-primary)] text-2xl text-white">
+            L
           </div>
           <div>
-            <h1 className="text-xl font-semibold">Welcome back</h1>
-            <p className="text-sm text-slate-400">Sign in to your organization workspace</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Lookin CRM</p>
+            <h1 className="mt-2 text-5xl text-[var(--brand-primary)]">Welcome Back</h1>
+            <p className="mt-2 text-sm text-slate-600">Sign in to access your organization workspace.</p>
           </div>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <label className="block">
-            <span className="mb-1 flex items-center gap-2 text-sm text-slate-300">
-              <Mail className="h-4 w-4" /> Email
-            </span>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="agent@your-org.com"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none ring-indigo-400 transition focus:ring"
-            />
+          <label className="block space-y-1.5">
+            <span className="text-xs uppercase tracking-[0.14em] text-slate-500">Email</span>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 outline-none ring-[var(--brand-accent)] transition focus:ring-2"
+                placeholder="admin@demo.local"
+                required
+              />
+            </div>
           </label>
 
-          <label className="block">
-            <span className="mb-1 flex items-center gap-2 text-sm text-slate-300">
-              <Lock className="h-4 w-4" /> Password
-            </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none ring-indigo-400 transition focus:ring"
-            />
+          <label className="block space-y-1.5">
+            <span className="text-xs uppercase tracking-[0.14em] text-slate-500">Password</span>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-800 outline-none ring-[var(--brand-accent)] transition focus:ring-2"
+                placeholder="••••••••"
+                required
+              />
+            </div>
           </label>
 
-          {error ? <p className="text-sm text-rose-400">{error}</p> : null}
+          {error ? (
+            <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
+          ) : null}
 
-          <Button className="w-full" size="lg" type="submit" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign in'}
-          </Button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-[var(--brand-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--brand-primary)] transition hover:opacity-90 disabled:opacity-60"
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
+          </button>
         </form>
       </motion.section>
     </main>
