@@ -8,17 +8,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  admin
-  agent
-}
-
 model Organization {
   id        String   @id @default(cuid())
   name      String
   slug      String   @unique
   users     User[]
-  eventLogs EventLog[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -31,27 +25,11 @@ model User {
   passwordHash   String
   firstName      String?
   lastName       String?
-  role           Role         @default(agent)
+  role           String       @default("agent")
   isActive       Boolean      @default(true)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
   @@unique([organizationId, email])
   @@index([organizationId])
-}
-
-model EventLog {
-  id             String       @id @default(cuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  actorUserId    String?
-  actorEmail     String?
-  eventType      String
-  entityType     String
-  entityId       String?
-  metadata       Json?
-  createdAt      DateTime     @default(now())
-
-  @@index([organizationId, createdAt])
-  @@index([eventType])
 }

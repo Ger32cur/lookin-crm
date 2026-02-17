@@ -38,7 +38,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       organizationId?: string;
     }>();
 
-    request.organizationId = (user as JwtPayload).organizationId;
+    request.organizationId = (user as unknown as { organizationId: string }).organizationId;
+
+
 
     return user;
   }
