@@ -20,32 +20,31 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getClass(),
     ]);
 
-    if (isPublic) {
-      return true;
-    }
+    if (isPublic) return true;
 
     return super.canActivate(context);
   }
 
-  handleRequest(
+  // Mantener firma compatible con IAuthGuard / Passport
+  handleRequest<TUser = any>(
     err: unknown,
-    user: JwtPayload | undefined,
+    user: TUser,
     _info: unknown,
     context: ExecutionContext,
-  ): JwtPayload {
+    _status?: unknown,
+  ): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
 
-    const request = context.switchToHttp().getRequest<RequestWithOrg>();
+    const payload = user as unknown as JwtPayload;
 
-    // Guardamos organizationId en request para que el resto de la app lo use fácil.
-    if (user.organizationId) {
-      request.organizationId = user.organizationId;
-    } else {
-      // Si por algún motivo el token no trae orgId, es mejor cortar acá (multi-tenant estricto).
+    if (!payload.organizationId) {
       throw new UnauthorizedException('Missing organizationId in JWT payload');
     }
+
+    const request = context.switchToHttp().getRequest<RequestWithOrg>();
+    request.organizationId = payload.organizationId;
 
     return user;
   }
