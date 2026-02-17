@@ -13,6 +13,7 @@ model Organization {
   name      String
   slug      String   @unique
   users     User[]
+  contacts  Contact[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -31,5 +32,19 @@ model User {
   updatedAt      DateTime     @updatedAt
 
   @@unique([organizationId, email])
+  @@index([organizationId])
+}
+
+model Contact {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  email          String
+  phone          String?
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
   @@index([organizationId])
 }
