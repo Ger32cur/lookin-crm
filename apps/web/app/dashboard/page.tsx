@@ -51,6 +51,12 @@ export default async function DashboardPage() {
         <p className="text-slate-300">
           Organization ID: <span className="font-medium text-white">{me.organizationId}</span>
         </p>
+        <Link
+          className="mt-6 inline-block rounded-lg border border-indigo-400/40 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-200 transition hover:bg-indigo-500/20"
+          href="/dashboard/contacts"
+        >
+          Ver contactos
+        </Link>
         <Link className="mt-6 inline-block text-indigo-300 underline-offset-4 hover:underline" href="/login">
           Volver a login
         </Link>
